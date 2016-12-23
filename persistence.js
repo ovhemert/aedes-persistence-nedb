@@ -72,7 +72,8 @@ Persistence.prototype.storeRetained = function (packet, callback) {
     return;
   }
   if (packet.payload.length > 0) {
-    self.retained.update({ topic: packet.topic }, packet, { upsert: true }, function (err, num, docs) {
+    var pkt = transformPacket(packet);
+    self.retained.update({ topic: packet.topic }, pkt, { upsert: true }, function (err, num, docs) {
       return callback(err);
     });
   } else {
@@ -90,7 +91,8 @@ Persistence.prototype.createRetainedStream = function (pattern) {
     self.retained.find({ topic: new RegExp(pattern.replace(/(#|\+).*$/, '')) }, { _id: 0 }).skip(readable.curIndex).limit(1).exec(function (err, docs) {
       if (err || docs.length === 0) { return readable.push(null); }
       readable.curIndex++;
-      readable.push(docs[0]);
+      var packet = transformPacket(docs[0]);
+      readable.push(packet);
     });
   };
   return readable;
