@@ -1,0 +1,11 @@
+.resources
+.vscode
+
+coverage
+data
+dist
+log
+node_modules
+public
+
+npm-debug*
