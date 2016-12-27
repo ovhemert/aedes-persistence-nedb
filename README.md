@@ -1,3 +1,9 @@
+[![Build Status](https://img.shields.io/travis/ovhemert/aedes-persistence-nedb.svg)](https://travis-ci.org/ovhemert/aedes-persistence-nedb)
+[![Dependencies](https://img.shields.io/david/ovhemert/aedes-persistence-nedb.svg)]()
+[![Known Vulnerabilities](https://snyk.io/test/npm/aedes-persistence-nedb/badge.svg)](https://snyk.io/test/npm/aedes-persistence-nedb)
+[![npm](https://img.shields.io/npm/v/aedes-persistence-nedb.svg)]()
+[![npm](https://img.shields.io/npm/dm/aedes-persistence-nedb.svg)]()
+
 # aedes-persistence-nedb
 
 [Aedes][aedes] persistence, backed by [NeDB][nedb].
