@@ -2,13 +2,12 @@
 
 var Buffer = require('buffer').Buffer;
 var EventEmitter = require('events').EventEmitter;
+var Path = require('path');
 var Stream = require('stream');
 var Util = require('util');
 
 var NeDB = require('nedb');
 var Packet = require('aedes-packet');
-
-function noop () {}
 
 function transformPacket (packet) {
   var res = Object.assign({}, packet);
@@ -22,12 +21,14 @@ function transformPacket (packet) {
   return res;
 }
 
-function Persistence () {
+function Persistence (options) {
   if (!(this instanceof Persistence)) {
-    return new Persistence();
+    return new Persistence(options);
   }
 
   var self = this;
+  self._options = options || {};
+  self._path = self._options.path || './data';
   self._ready = { incoming: false, outgoing: false, retained: false, subscriptions: false, wills: false };
   self.ready = false;
 
@@ -45,8 +46,9 @@ function Persistence () {
 
   function _getStorage (name) {
     var _name = name;
+    var filename = Path.join(self._path, _name + '.db');
     var storage = new NeDB({
-      filename: './data/' + _name + '.db',
+      filename: filename,
       autoload: true,
       onload: function () {
         self._ready[_name] = true;
@@ -362,23 +364,20 @@ Persistence.prototype.removeAll = function (callback) {
 
 Persistence.prototype.destroy = function (callback) {
   var self = this;
-  if (!self.ready) {
-    self.once('ready', self.destroy.bind(self, callback));
-    return;
-  }
   if (self._destroyed) {
     throw new Error('destroyed called twice!');
   }
   self._destroyed = true;
-  callback = callback || noop;
+  self.incoming = null;
+  self.outgoing = null;
+  self.retained = null;
+  self.subscriptions = null;
+  self.wills = null;
+  self.removeAllListeners();
 
-  this.incoming = null;
-  this.outgoing = null;
-  this.retained = null;
-  this.subscriptions = null;
-  this.wills = null;
-
-  if (callback) { return callback(null); }
+  if (callback) {
+    return callback();
+  }
 };
 
 module.exports = Persistence;

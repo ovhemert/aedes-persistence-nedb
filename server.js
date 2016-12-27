@@ -12,4 +12,3 @@ var port = 1883;
 server.listen(port, function () {
   console.log('server listening on port', port);
 });
-

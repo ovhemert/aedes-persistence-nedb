@@ -6,17 +6,11 @@ var Packet = require('aedes-packet');
 
 function abstractPersistence (opts) {
   var test = opts.test;
-  var _persistence = opts.persistence;
 
-  // requiring it here so it will not error for modules
-  // not using the default emitter
+  var _persistence = function asyncify (cb) {
+    cb(null, opts.persistence());
+  };
   var buildEmitter = opts.buildEmitter || require('mqemitter');
-
-  if (_persistence.length === 0) {
-    _persistence = function asyncify (cb) {
-      cb(null, opts.persistence());
-    };
-  }
 
   function persistence (cb) {
     var mq = buildEmitter();
@@ -99,9 +93,7 @@ function abstractPersistence (opts) {
           payload: new Buffer(0)
         }, function (err) {
           t.notOk(err, 'no error');
-
           var stream = instance.createRetainedStream('#');
-
           stream.pipe(concat(function (list) {
             t.deepEqual(list, [], 'must return an empty list');
             instance.destroy(t.end.bind(t));
@@ -813,6 +805,11 @@ function abstractPersistence (opts) {
         instance.destroy(t.end.bind(t));
       });
     });
+  });
+
+  test('done', function (t) {
+    t.end();
+    process.exit();
   });
 }
 

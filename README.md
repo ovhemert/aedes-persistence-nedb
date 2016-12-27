@@ -12,13 +12,21 @@ npm i aedes aedes-persistence-nedb --save
 
 ## API
 
-<a name="constructor"></a>
-### aedesPersistenceNeDB([opts])
+### Persistence ([options])
 
 Creates a new instance of aedes-persistence-nedb.
-Stores NEDB files in `./data` by default.
+Accepts an options object to override defaults.
 
-Example:
+```js
+var NedbPersistence = require('aedes-persistence-nedb');
+var persistence = new NedbPersistence({
+  path: './db'  // defaults to './data'
+});
+```
+
+## Example
+
+Creates a new Aedes instance that persists to NeDB. Connect to this instance with a MQTT client to see it working.
 
 ```js
 var NedbPersistence = require('aedes-persistence-nedb');
