@@ -26,7 +26,8 @@ Accepts an options object to override defaults.
 ```js
 var NedbPersistence = require('aedes-persistence-nedb');
 var persistence = new NedbPersistence({
-  path: './db'  // defaults to './data'
+  path: './db'      // defaults to './data',
+  prefix: 'mqtt'    // defaults to ''
 });
 ```
 

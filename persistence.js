@@ -29,6 +29,7 @@ function Persistence (options) {
   var self = this;
   self._options = options || {};
   self._path = self._options.path || './data';
+  self._prefix = (self._options.prefix) ? (self._options.prefix + '.') : '';
   self._ready = { incoming: false, outgoing: false, retained: false, subscriptions: false, wills: false };
   self.ready = false;
 
@@ -46,7 +47,7 @@ function Persistence (options) {
 
   function _getStorage (name) {
     var _name = name;
-    var filename = Path.join(self._path, _name + '.db');
+    var filename = Path.join(self._path, self._prefix + _name + '.db');
     var storage = new NeDB({
       filename: filename,
       autoload: true,
