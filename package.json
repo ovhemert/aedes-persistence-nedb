@@ -1,6 +1,6 @@
 {
   "name": "aedes-persistence-nedb",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "NeDB persistence for Aedes.",
   "main": "persistence.js",
   "scripts": {

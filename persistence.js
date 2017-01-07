@@ -198,8 +198,12 @@ Persistence.prototype.outgoingUpdate = function (client, packet, callback) {
     changes = { clientId: client.id, packet: packet };
   }
   self.outgoing.update(query, changes, { returnUpdatedDocs: true }, function (err, num, doc) {
-    var pkt = transformPacket(doc.packet);
-    return callback(err, client, pkt);
+    if (doc) {
+      var pkt = transformPacket(doc.packet);
+      return callback(err, client, pkt);
+    } else {
+      return callback(err, client, {});
+    }
   });
 };
 
