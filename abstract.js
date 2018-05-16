@@ -774,20 +774,20 @@ function abstractPersistence (opts) {
           instance.streamWill({
             'anotherBroker': Date.now()
           }).pipe(through.obj(function (chunk, enc, cb) {
-              t.deepEqual(chunk, {
-                clientId: client.id,
-                brokerId: originalId,
-                topic: 'hello/died42',
-                payload: Buffer.from('muahahha'),
-                qos: 0,
-                retain: true
-              }, 'packet matches');
-              cb();
-              instance.delWill(client, function (err, result, client) {
-                t.error(err, 'no error');
-                instance.destroy(t.end.bind(t));
-              });
-            }));
+            t.deepEqual(chunk, {
+              clientId: client.id,
+              brokerId: originalId,
+              topic: 'hello/died42',
+              payload: Buffer.from('muahahha'),
+              qos: 0,
+              retain: true
+            }, 'packet matches');
+            cb();
+            instance.delWill(client, function (err, result, client) {
+              t.error(err, 'no error');
+              instance.destroy(t.end.bind(t));
+            });
+          }));
         });
       });
     });
