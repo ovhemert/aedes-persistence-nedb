@@ -177,13 +177,17 @@ Persistence.prototype.cleanSubscriptions = function (client, callback) {
 };
 
 Persistence.prototype.outgoingEnqueue = function (sub, packet, callback) {
+  this.outgoingEnqueueCombi([sub], packet, callback);
+};
+
+Persistence.prototype.outgoingEnqueueCombi = function (subs, packet, callback) {
   var self = this;
   if (!self.ready) {
-    self.once('ready', self.outgoingEnqueue.bind(self, sub, packet, callback));
+    self.once('ready', self.outgoingEnqueue.bind(self, subs, packet, callback));
     return;
   }
-  var doc = { clientId: sub.clientId, packet: transformPacket(new Packet(packet)) };
-  self.outgoing.insert(doc, function (err, inserted) {
+  var docs = subs.map(function (sub) { return { clientId: sub.clientId, packet: transformPacket(new Packet(packet)) }; });
+  self.outgoing.insert(docs, function (err, inserted) {
     return callback(err);
   });
 };
