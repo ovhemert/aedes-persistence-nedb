@@ -6,6 +6,8 @@
 
 # aedes-persistence-nedb
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/ovhemert/aedes-persistence-nedb.svg)](https://greenkeeper.io/)
+
 [Aedes][aedes] persistence, backed by [NeDB][nedb].
 
 See [aedes-persistence][persistence] for the full API, and [Aedes][aedes] for usage.
