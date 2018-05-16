@@ -773,8 +773,7 @@ function abstractPersistence (opts) {
           t.equal(c, anotherClient, 'client matches');
           instance.streamWill({
             'anotherBroker': Date.now()
-          })
-          .pipe(through.obj(function (chunk, enc, cb) {
+          }).pipe(through.obj(function (chunk, enc, cb) {
             t.deepEqual(chunk, {
               clientId: client.id,
               brokerId: originalId,
