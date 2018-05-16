@@ -87,11 +87,16 @@ Persistence.prototype.storeRetained = function (packet, callback) {
 };
 
 Persistence.prototype.createRetainedStream = function (pattern) {
+  return this.createRetainedStreamCombi([pattern]);
+};
+
+Persistence.prototype.createRetainedStreamCombi = function (patterns) {
   var self = this;
+  var topics = patterns.map(function (pattern) { return { topic: new RegExp(pattern.replace(/(#|\+).*$/, '')) }; });
   var readable = new Stream.Readable({objectMode: true});
   readable.curIndex = 0;
   readable._read = function (size) {
-    self.retained.find({ topic: new RegExp(pattern.replace(/(#|\+).*$/, '')) }, { _id: 0 }).skip(readable.curIndex).limit(1).exec(function (err, docs) {
+    self.retained.find({ $or: topics }, { _id: 0 }).skip(readable.curIndex).limit(1).exec(function (err, docs) {
       if (err || docs.length === 0) { return readable.push(null); }
       readable.curIndex++;
       var packet = transformPacket(docs[0]);
