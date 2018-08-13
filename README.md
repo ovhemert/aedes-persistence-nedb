@@ -1,9 +1,9 @@
 [![Build Status](https://img.shields.io/travis/ovhemert/aedes-persistence-nedb.svg)](https://travis-ci.org/ovhemert/aedes-persistence-nedb)
 [![Dependencies](https://img.shields.io/david/ovhemert/aedes-persistence-nedb.svg)]()
 [![Known Vulnerabilities](https://snyk.io/test/npm/aedes-persistence-nedb/badge.svg)](https://snyk.io/test/npm/aedes-persistence-nedb)
+[![Greenkeeper badge](https://badges.greenkeeper.io/ovhemert/aedes-persistence-nedb.svg)](https://greenkeeper.io/)
 [![npm](https://img.shields.io/npm/v/aedes-persistence-nedb.svg)]()
 [![npm](https://img.shields.io/npm/dm/aedes-persistence-nedb.svg)]()
-[![Greenkeeper badge](https://badges.greenkeeper.io/ovhemert/aedes-persistence-nedb.svg)](https://greenkeeper.io/)
 
 # aedes-persistence-nedb
 
@@ -51,15 +51,28 @@ server.listen(port, function () {
   console.log('server listening on port', port);
 });
 ```
+
+## Maintainers
+
+**Osmond van Hemert**
+
+[![Github](https://img.shields.io/badge/style-github-333333.svg?logo=github&logoColor=white&label=)](https://github.com/ovhemert)
+[![NPM](https://img.shields.io/badge/style-npm-333333.svg?logo=npm&logoColor=&label=)](https://www.npmjs.com/~ovhemert)
+[![Twitter](https://img.shields.io/badge/style-twitter-333333.svg?logo=twitter&logoColor=&label=)](https://twitter.com/osmondvanhemert)
+[![Web](https://img.shields.io/badge/style-website-333333.svg?logoColor=white&label=&logo=diaspora)](https://www.osmondvanhemert.nl)
+
+## Contributing
+
+See the [CONTRIBUTING.md](./docs/CONTRIBUTING.md) file for details.
+
 ## Donations
 
 Want to help me out by giving a donation? Check out these options:
 
-[![Patreon](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://www.patreon.com/ovhemert)
-[![Coinbase](https://img.shields.io/badge/coins-donate-yellow.svg)](https://commerce.coinbase.com/checkout/fd177bf0-a89a-481b-889e-22bfce857b75)
-[![PayPal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.me/osmondvanhemert)
-[![BuyMeACoffee](https://img.shields.io/badge/coffee-donate-yellow.svg)](https://buymeacoff.ee/ovhemert)
-[![Beerpay](https://img.shields.io/badge/beer-donate-yellow.svg)](https://beerpay.io/ovhemert/aedes-persistence-nedb)
+[![Patreon](https://img.shields.io/badge/style-patreon-333333.svg?logo=patreon&logoColor=&label=)](https://www.patreon.com/ovhemert)
+[![Coinbase](https://img.shields.io/badge/style-bitcoin-333333.svg?logo=bitcoin&logoColor=&label=)](https://commerce.coinbase.com/checkout/fd177bf0-a89a-481b-889e-22bfce857b75)
+[![PayPal](https://img.shields.io/badge/style-paypal-333333.svg?logo=paypal&logoColor=&label=)](https://www.paypal.me/osmondvanhemert)
+[![Ko-fi](https://img.shields.io/badge/style-coffee-333333.svg?logo=ko-fi&logoColor=&label=)](http://ko-fi.com/ovhemert)
 
 ## License
 
