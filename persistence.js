@@ -93,7 +93,7 @@ Persistence.prototype.createRetainedStream = function (pattern) {
 Persistence.prototype.createRetainedStreamCombi = function (patterns) {
   var self = this;
   var topics = patterns.map(function (pattern) { return { topic: new RegExp(pattern.replace(/(#|\+).*$/, '')) }; });
-  var readable = new Stream.Readable({objectMode: true});
+  var readable = new Stream.Readable({ objectMode: true });
   readable.curIndex = 0;
   readable._read = function (size) {
     self.retained.find({ $or: topics }, { _id: 0 }).skip(readable.curIndex).limit(1).exec(function (err, docs) {
@@ -234,7 +234,7 @@ Persistence.prototype.outgoingClearMessageId = function (client, packet, callbac
 
 Persistence.prototype.outgoingStream = function (client) {
   var self = this;
-  var readable = new Stream.Readable({objectMode: true});
+  var readable = new Stream.Readable({ objectMode: true });
   readable.curIndex = 0;
   readable._read = function (size) {
     self.outgoing.find({ clientId: client.id }, { _id: 0 }).skip(readable.curIndex).limit(1).exec(function (err, docs) {
@@ -324,7 +324,7 @@ Persistence.prototype.delWill = function (client, callback) {
 
 Persistence.prototype.streamWill = function (brokers) {
   var self = this;
-  var readable = new Stream.Readable({objectMode: true});
+  var readable = new Stream.Readable({ objectMode: true });
   readable.curIndex = 0;
   readable._read = function (size) {
     var query = (brokers) ? { 'packet.brokerId': { $nin: Object.keys(brokers) } } : {};
@@ -340,7 +340,7 @@ Persistence.prototype.streamWill = function (brokers) {
 
 Persistence.prototype.getClientList = function (topic) {
   var self = this;
-  var readable = new Stream.Readable({objectMode: true});
+  var readable = new Stream.Readable({ objectMode: true });
   readable.curIndex = 0;
   readable._read = function (size) {
     var query = (topic) ? { topic: topic } : {};
