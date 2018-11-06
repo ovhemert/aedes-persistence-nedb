@@ -226,7 +226,7 @@ function abstractPersistence (opts) {
         instance.addSubscriptions(client2, subs, function (err) {
           t.notOk(err, 'no error for client 2');
           var stream = instance.getClientList(subs[0].topic);
-          stream.pipe(concat({encoding: 'object'}, function (out) {
+          stream.pipe(concat({ encoding: 'object' }, function (out) {
             t.deepEqual(out, [client1.id, client2.id]);
             instance.destroy(t.end.bind(t));
           }));
@@ -251,7 +251,7 @@ function abstractPersistence (opts) {
           instance.removeSubscriptions(client2, [subs[0].topic], function (err, reClient) {
             t.notOk(err, 'no error for removeSubscriptions');
             var stream = instance.getClientList(subs[0].topic);
-            stream.pipe(concat({encoding: 'object'}, function (out) {
+            stream.pipe(concat({ encoding: 'object' }, function (out) {
               t.deepEqual(out, [client1.id]);
               instance.destroy(t.end.bind(t));
             }));
