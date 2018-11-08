@@ -34,7 +34,7 @@
     "pre-commit": "^1.1.2",
     "semistandard": "^13.0.0",
     "tape": "^4.9.1",
-    "through2": "^2.0.4"
+    "through2": "^3.0.0"
   },
   "dependencies": {
     "aedes-packet": "^1.0.0",
