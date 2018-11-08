@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/ovhemert/aedes-persistence-nedb.svg)](https://travis-ci.org/ovhemert/aedes-persistence-nedb)
+[![Build Status](https://ovhemert.visualstudio.com/aedes-persistence-nedb/_apis/build/status/ovhemert.aedes-persistence-nedb)](https://ovhemert.visualstudio.com/aedes-persistence-nedb/_build/latest?definitionId=2)
 [![Dependencies](https://img.shields.io/david/ovhemert/aedes-persistence-nedb.svg)]()
 [![Known Vulnerabilities](https://snyk.io/test/npm/aedes-persistence-nedb/badge.svg)](https://snyk.io/test/npm/aedes-persistence-nedb)
 [![Greenkeeper badge](https://badges.greenkeeper.io/ovhemert/aedes-persistence-nedb.svg)](https://greenkeeper.io/)
