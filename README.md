@@ -1,4 +1,5 @@
 [![Build Status](https://ovhemert.visualstudio.com/aedes-persistence-nedb/_apis/build/status/ovhemert.aedes-persistence-nedb)](https://ovhemert.visualstudio.com/aedes-persistence-nedb/_build/latest?definitionId=2)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/36fb257bd6d241f9b95fe63d74c69a24)](https://www.codacy.com/app/ovhemert/aedes-persistence-nedb?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ovhemert/aedes-persistence-nedb&amp;utm_campaign=Badge_Grade)
 [![Dependencies](https://img.shields.io/david/ovhemert/aedes-persistence-nedb.svg)]()
 [![Known Vulnerabilities](https://snyk.io/test/npm/aedes-persistence-nedb/badge.svg)](https://snyk.io/test/npm/aedes-persistence-nedb)
 [![Greenkeeper badge](https://badges.greenkeeper.io/ovhemert/aedes-persistence-nedb.svg)](https://greenkeeper.io/)
