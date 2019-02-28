@@ -6,9 +6,7 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/ovhemert/aedes-persistence-nedb.svg)](https://greenkeeper.io/)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 
-
 # aedes-persistence-nedb
-
 
 [Aedes][aedes] persistence, backed by [NeDB][nedb].
 
@@ -16,13 +14,13 @@ See [aedes-persistence][persistence] for the full API, and [Aedes][aedes] for us
 
 ## Install
 
-```
+```sh
 npm i aedes aedes-persistence-nedb --save
 ```
 
 ## API
 
-### Persistence ([options])
+### Persistence (options)
 
 Creates a new instance of aedes-persistence-nedb.
 Accepts an options object to override defaults.
