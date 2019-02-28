@@ -2,8 +2,8 @@
 [![Dependencies](https://img.shields.io/david/ovhemert/aedes-persistence-nedb.svg)]()
 [![Known Vulnerabilities](https://snyk.io/test/npm/aedes-persistence-nedb/badge.svg)](https://snyk.io/test/npm/aedes-persistence-nedb)
 [![Greenkeeper badge](https://badges.greenkeeper.io/ovhemert/aedes-persistence-nedb.svg)](https://greenkeeper.io/)
-[![npm](https://img.shields.io/npm/v/aedes-persistence-nedb.svg)]()
-[![npm](https://img.shields.io/npm/dm/aedes-persistence-nedb.svg)]()
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
+
 
 # aedes-persistence-nedb
 

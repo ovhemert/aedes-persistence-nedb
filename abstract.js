@@ -1,37 +1,37 @@
-'use strict';
+'use strict'
 
-var concat = require('concat-stream');
-var through = require('through2');
-var Packet = require('aedes-packet');
+var concat = require('concat-stream')
+var through = require('through2')
+var Packet = require('aedes-packet')
 
 function abstractPersistence (opts) {
-  var test = opts.test;
+  var test = opts.test
 
   var _persistence = function asyncify (cb) {
-    cb(null, opts.persistence());
-  };
-  var buildEmitter = opts.buildEmitter || require('mqemitter');
+    cb(null, opts.persistence())
+  }
+  var buildEmitter = opts.buildEmitter || require('mqemitter')
 
   function persistence (cb) {
-    var mq = buildEmitter();
+    var mq = buildEmitter()
     var broker = {
       id: 'broker-42',
       mq: mq,
       publish: mq.emit.bind(mq),
       subscribe: mq.on.bind(mq),
       unsubscribe: mq.removeListener.bind(mq)
-    };
+    }
 
     _persistence(function (err, instance) {
       if (instance) {
-        instance.broker = broker;
+        instance.broker = broker
       }
-      cb(err, instance);
-    });
+      cb(err, instance)
+    })
   }
 
   function storeRetained (instance, opts, cb) {
-    opts = opts || {};
+    opts = opts || {}
 
     var packet = {
       cmd: 'publish',
@@ -40,90 +40,90 @@ function abstractPersistence (opts) {
       payload: opts.payload || Buffer.from('muahah'),
       qos: 0,
       retain: true
-    };
+    }
 
     instance.storeRetained(packet, function (err) {
-      cb(err, packet);
-    });
+      cb(err, packet)
+    })
   }
 
   function matchRetainedWithPattern (t, pattern, opts) {
     persistence(function (err, instance) {
-      if (err) { throw err; }
+      if (err) { throw err }
 
       storeRetained(instance, opts, function (err, packet) {
-        t.notOk(err, 'no error');
-        var stream = instance.createRetainedStream(pattern);
+        t.notOk(err, 'no error')
+        var stream = instance.createRetainedStream(pattern)
 
         stream.pipe(concat(function (list) {
-          t.deepEqual(list, [packet], 'must return the packet');
-          instance.destroy(t.end.bind(t));
-        }));
-      });
-    });
+          t.deepEqual(list, [packet], 'must return the packet')
+          instance.destroy(t.end.bind(t))
+        }))
+      })
+    })
   }
 
   function testInstance (title, cb) {
     test(title, function (t) {
       persistence(function (err, instance) {
-        if (err) { throw err; }
-        cb(t, instance);
-      });
-    });
+        if (err) { throw err }
+        cb(t, instance)
+      })
+    })
   }
 
   test('store and look up retained messages', function (t) {
-    matchRetainedWithPattern(t, 'hello/world');
-  });
+    matchRetainedWithPattern(t, 'hello/world')
+  })
 
   test('look up retained messages with a # pattern', function (t) {
-    matchRetainedWithPattern(t, '#');
-  });
+    matchRetainedWithPattern(t, '#')
+  })
 
   test('look up retained messages with a + pattern', function (t) {
-    matchRetainedWithPattern(t, 'hello/+');
-  });
+    matchRetainedWithPattern(t, 'hello/+')
+  })
 
   testInstance('remove retained message', function (t, instance) {
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       storeRetained(instance, {}, function (err, packet) {
-        t.notOk(err, 'no error');
+        t.notOk(err, 'no error')
         storeRetained(instance, {
           payload: Buffer.alloc(0)
         }, function (err) {
-          t.notOk(err, 'no error');
-          var stream = instance.createRetainedStream('#');
+          t.notOk(err, 'no error')
+          var stream = instance.createRetainedStream('#')
           stream.pipe(concat(function (list) {
-            t.deepEqual(list, [], 'must return an empty list');
-            instance.destroy(t.end.bind(t));
-          }));
-        });
-      });
-    });
-  });
+            t.deepEqual(list, [], 'must return an empty list')
+            instance.destroy(t.end.bind(t))
+          }))
+        })
+      })
+    })
+  })
 
   testInstance('storing twice a retained message should keep only the last', function (t, instance) {
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       storeRetained(instance, {}, function (err, packet) {
-        t.notOk(err, 'no error');
+        t.notOk(err, 'no error')
         storeRetained(instance, {
           payload: Buffer.from('ahah')
         }, function (err, packet) {
-          t.notOk(err, 'no error');
-          var stream = instance.createRetainedStream('#');
+          t.notOk(err, 'no error')
+          var stream = instance.createRetainedStream('#')
           stream.pipe(concat(function (list) {
-            t.deepEqual(list, [packet], 'must return the last packet');
-            instance.destroy(t.end.bind(t));
-          }));
-        });
-      });
-    });
-  });
+            t.deepEqual(list, [packet], 'must return the last packet')
+            instance.destroy(t.end.bind(t))
+          }))
+        })
+      })
+    })
+  })
 
   testInstance('store and look up subscriptions by client', function (t, instance) {
-    var client = { id: 'abcde' };
+    var client = { id: 'abcde' }
     var subs = [{
       topic: 'hello',
       qos: 1
@@ -133,54 +133,54 @@ function abstractPersistence (opts) {
     }, {
       topic: 'noqos',
       qos: 0
-    }];
+    }]
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.addSubscriptions(client, subs, function (err, reClient) {
-        t.equal(reClient, client, 'client must be the same');
-        t.notOk(err, 'no error');
+        t.equal(reClient, client, 'client must be the same')
+        t.notOk(err, 'no error')
         instance.subscriptionsByClient(client, function (err, resubs, reReClient) {
-          t.equal(reReClient, client, 'client must be the same');
-          t.notOk(err, 'no error');
-          t.deepEqual(resubs, subs);
-          instance.destroy(t.end.bind(t));
-        });
-      });
-    });
-  });
+          t.equal(reReClient, client, 'client must be the same')
+          t.notOk(err, 'no error')
+          t.deepEqual(resubs, subs)
+          instance.destroy(t.end.bind(t))
+        })
+      })
+    })
+  })
 
   testInstance('remove subscriptions by client', function (t, instance) {
-    var client = { id: 'abcde' };
+    var client = { id: 'abcde' }
     var subs = [{
       topic: 'hello',
       qos: 1
     }, {
       topic: 'matteo',
       qos: 1
-    }];
+    }]
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.addSubscriptions(client, subs, function (err, reClient) {
-        t.notOk(err, 'no error');
+        t.notOk(err, 'no error')
         instance.removeSubscriptions(client, ['hello'], function (err, reClient) {
-          t.notOk(err, 'no error');
-          t.equal(reClient, client, 'client must be the same');
+          t.notOk(err, 'no error')
+          t.equal(reClient, client, 'client must be the same')
           instance.subscriptionsByClient(client, function (err, resubs, reClient) {
-            t.equal(reClient, client, 'client must be the same');
-            t.notOk(err, 'no error');
+            t.equal(reClient, client, 'client must be the same')
+            t.notOk(err, 'no error')
             t.deepEqual(resubs, [{
               topic: 'matteo',
               qos: 1
-            }]);
-            instance.destroy(t.end.bind(t));
-          });
-        });
-      });
-    });
-  });
+            }])
+            instance.destroy(t.end.bind(t))
+          })
+        })
+      })
+    })
+  })
 
   testInstance('store and look up subscriptions by topic', function (t, instance) {
-    var client = { id: 'abcde' };
+    var client = { id: 'abcde' }
     var subs = [{
       topic: 'hello',
       qos: 1
@@ -190,13 +190,13 @@ function abstractPersistence (opts) {
     }, {
       topic: 'matteo',
       qos: 1
-    }];
+    }]
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.addSubscriptions(client, subs, function (err) {
-        t.notOk(err, 'no error');
+        t.notOk(err, 'no error')
         instance.subscriptionsByTopic('hello', function (err, resubs) {
-          t.notOk(err, 'no error');
+          t.notOk(err, 'no error')
           t.deepEqual(resubs, [{
             clientId: client.id,
             topic: 'hello/#',
@@ -205,64 +205,64 @@ function abstractPersistence (opts) {
             clientId: client.id,
             topic: 'hello',
             qos: 1
-          }]);
-          instance.destroy(t.end.bind(t));
-        });
-      });
-    });
-  });
+          }])
+          instance.destroy(t.end.bind(t))
+        })
+      })
+    })
+  })
 
   testInstance('get client list after subscriptions', function (t, instance) {
-    var client1 = { id: 'abcde' };
-    var client2 = { id: 'efghi' };
+    var client1 = { id: 'abcde' }
+    var client2 = { id: 'efghi' }
     var subs = [{
       topic: 'helloagain',
       qos: 1
-    }];
+    }]
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.addSubscriptions(client1, subs, function (err) {
-        t.notOk(err, 'no error for client 1');
+        t.notOk(err, 'no error for client 1')
         instance.addSubscriptions(client2, subs, function (err) {
-          t.notOk(err, 'no error for client 2');
-          var stream = instance.getClientList(subs[0].topic);
+          t.notOk(err, 'no error for client 2')
+          var stream = instance.getClientList(subs[0].topic)
           stream.pipe(concat({ encoding: 'object' }, function (out) {
-            t.deepEqual(out, [client1.id, client2.id]);
-            instance.destroy(t.end.bind(t));
-          }));
-        });
-      });
-    });
-  });
+            t.deepEqual(out, [client1.id, client2.id])
+            instance.destroy(t.end.bind(t))
+          }))
+        })
+      })
+    })
+  })
 
   testInstance('get client list after an unsubscribe', function (t, instance) {
-    var client1 = { id: 'abcde' };
-    var client2 = { id: 'efghi' };
+    var client1 = { id: 'abcde' }
+    var client2 = { id: 'efghi' }
     var subs = [{
       topic: 'helloagain',
       qos: 1
-    }];
+    }]
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.addSubscriptions(client1, subs, function (err) {
-        t.notOk(err, 'no error for client 1');
+        t.notOk(err, 'no error for client 1')
         instance.addSubscriptions(client2, subs, function (err) {
-          t.notOk(err, 'no error for client 2');
+          t.notOk(err, 'no error for client 2')
           instance.removeSubscriptions(client2, [subs[0].topic], function (err, reClient) {
-            t.notOk(err, 'no error for removeSubscriptions');
-            var stream = instance.getClientList(subs[0].topic);
+            t.notOk(err, 'no error for removeSubscriptions')
+            var stream = instance.getClientList(subs[0].topic)
             stream.pipe(concat({ encoding: 'object' }, function (out) {
-              t.deepEqual(out, [client1.id]);
-              instance.destroy(t.end.bind(t));
-            }));
-          });
-        });
-      });
-    });
-  });
+              t.deepEqual(out, [client1.id])
+              instance.destroy(t.end.bind(t))
+            }))
+          })
+        })
+      })
+    })
+  })
 
   testInstance('QoS 0 subscriptions, restored but not matched', function (t, instance) {
-    var client = { id: 'abcde' };
+    var client = { id: 'abcde' }
     var subs = [{
       topic: 'hello',
       qos: 0
@@ -272,80 +272,80 @@ function abstractPersistence (opts) {
     }, {
       topic: 'matteo',
       qos: 1
-    }];
+    }]
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.addSubscriptions(client, subs, function (err) {
-        t.notOk(err, 'no error');
+        t.notOk(err, 'no error')
         instance.subscriptionsByClient(client, function (err, resubs) {
-          t.notOk(err, 'no error');
-          t.deepEqual(resubs, subs);
+          t.notOk(err, 'no error')
+          t.deepEqual(resubs, subs)
           instance.subscriptionsByTopic('hello', function (err, resubs2) {
-            t.notOk(err, 'no error');
+            t.notOk(err, 'no error')
             t.deepEqual(resubs2, [{
               clientId: client.id,
               topic: 'hello/#',
               qos: 1
-            }]);
-            instance.destroy(t.end.bind(t));
-          });
-        });
-      });
-    });
-  });
+            }])
+            instance.destroy(t.end.bind(t))
+          })
+        })
+      })
+    })
+  })
 
   testInstance('clean subscriptions', function (t, instance) {
-    var client = { id: 'abcde' };
+    var client = { id: 'abcde' }
     var subs = [{
       topic: 'hello',
       qos: 1
     }, {
       topic: 'matteo',
       qos: 1
-    }];
+    }]
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.addSubscriptions(client, subs, function (err) {
-        t.notOk(err, 'no error');
+        t.notOk(err, 'no error')
         instance.cleanSubscriptions(client, function (err) {
-          t.notOk(err, 'no error');
+          t.notOk(err, 'no error')
           instance.subscriptionsByTopic('hello', function (err, resubs) {
-            t.notOk(err, 'no error');
-            t.deepEqual(resubs, [], 'no subscriptions');
+            t.notOk(err, 'no error')
+            t.deepEqual(resubs, [], 'no subscriptions')
 
             instance.subscriptionsByClient(client, function (err, resubs) {
-              t.error(err);
-              t.deepEqual(resubs, null, 'no subscriptions');
-              instance.destroy(t.end.bind(t));
-            });
-          });
-        });
-      });
-    });
-  });
+              t.error(err)
+              t.deepEqual(resubs, null, 'no subscriptions')
+              instance.destroy(t.end.bind(t))
+            })
+          })
+        })
+      })
+    })
+  })
 
   testInstance('clean subscriptions with no active subscriptions', function (t, instance) {
-    var client = { id: 'abcde' };
+    var client = { id: 'abcde' }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.cleanSubscriptions(client, function (err) {
-        t.notOk(err, 'no error');
+        t.notOk(err, 'no error')
         instance.subscriptionsByTopic('hello', function (err, resubs) {
-          t.notOk(err, 'no error');
-          t.deepEqual(resubs, [], 'no subscriptions');
+          t.notOk(err, 'no error')
+          t.deepEqual(resubs, [], 'no subscriptions')
 
           instance.subscriptionsByClient(client, function (err, resubs) {
-            t.error(err);
-            t.deepEqual(resubs, null, 'no subscriptions');
-            instance.destroy(t.end.bind(t));
-          });
-        });
-      });
-    });
-  });
+            t.error(err)
+            t.deepEqual(resubs, null, 'no subscriptions')
+            instance.destroy(t.end.bind(t))
+          })
+        })
+      })
+    })
+  })
 
   testInstance('store and count subscriptions', function (t, instance) {
-    var client = { id: 'abcde' };
+    var client = { id: 'abcde' }
     var subs = [{
       topic: 'hello',
       qos: 1
@@ -355,43 +355,43 @@ function abstractPersistence (opts) {
     }, {
       topic: 'noqos',
       qos: 0
-    }];
+    }]
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.addSubscriptions(client, subs, function (err, reClient) {
-        t.equal(reClient, client, 'client must be the same');
-        t.error(err, 'no error');
+        t.equal(reClient, client, 'client must be the same')
+        t.error(err, 'no error')
 
         instance.countOffline(function (err, subsCount, clientsCount) {
-          t.error(err, 'no error');
-          t.equal(subsCount, 2, 'two subscriptions added');
-          t.equal(clientsCount, 1, 'one client added');
+          t.error(err, 'no error')
+          t.equal(subsCount, 2, 'two subscriptions added')
+          t.equal(clientsCount, 1, 'one client added')
 
           instance.removeSubscriptions(client, ['hello'], function (err, reClient) {
-            t.error(err, 'no error');
+            t.error(err, 'no error')
 
             instance.countOffline(function (err, subsCount, clientsCount) {
-              t.error(err, 'no error');
-              t.equal(subsCount, 1, 'one subscriptions added');
-              t.equal(clientsCount, 1, 'one client added');
+              t.error(err, 'no error')
+              t.equal(subsCount, 1, 'one subscriptions added')
+              t.equal(clientsCount, 1, 'one client added')
 
-              instance.destroy(t.end.bind(t));
-            });
-          });
-        });
-      });
-    });
-  });
+              instance.destroy(t.end.bind(t))
+            })
+          })
+        })
+      })
+    })
+  })
 
   testInstance('add outgoing packet and stream it', function (t, instance) {
     var sub = {
       clientId: 'abcde',
       topic: 'hello',
       qos: 1
-    };
+    }
     var client = {
       id: sub.clientId
-    };
+    }
     var packet = {
       cmd: 'publish',
       topic: 'hello',
@@ -402,7 +402,7 @@ function abstractPersistence (opts) {
       retain: false,
       brokerId: instance.broker.id,
       brokerCounter: 42
-    };
+    }
     var expected = {
       cmd: 'publish',
       topic: 'hello',
@@ -412,30 +412,30 @@ function abstractPersistence (opts) {
       brokerId: instance.broker.id,
       brokerCounter: 42,
       messageId: 0
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.outgoingEnqueue(sub, packet, function (err) {
-        t.error(err);
-        var stream = instance.outgoingStream(client);
+        t.error(err)
+        var stream = instance.outgoingStream(client)
 
         stream.pipe(concat(function (list) {
-          t.deepEqual(list, [expected], 'must return the packet');
-          instance.destroy(t.end.bind(t));
-        }));
-      });
-    });
-  });
+          t.deepEqual(list, [expected], 'must return the packet')
+          instance.destroy(t.end.bind(t))
+        }))
+      })
+    })
+  })
 
   testInstance('add outgoing packet and stream it twice', function (t, instance) {
     var sub = {
       clientId: 'abcde',
       topic: 'hello',
       qos: 1
-    };
+    }
     var client = {
       id: sub.clientId
-    };
+    }
     var packet = {
       cmd: 'publish',
       topic: 'hello',
@@ -447,7 +447,7 @@ function abstractPersistence (opts) {
       brokerId: instance.broker.id,
       brokerCounter: 42,
       messageId: 4242
-    };
+    }
     var expected = {
       cmd: 'publish',
       topic: 'hello',
@@ -457,50 +457,50 @@ function abstractPersistence (opts) {
       brokerId: instance.broker.id,
       brokerCounter: 42,
       messageId: 0
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.outgoingEnqueue(sub, packet, function (err) {
-        t.error(err);
-        var stream = instance.outgoingStream(client);
+        t.error(err)
+        var stream = instance.outgoingStream(client)
 
         stream.pipe(concat(function (list) {
-          t.deepEqual(list, [expected], 'must return the packet');
+          t.deepEqual(list, [expected], 'must return the packet')
 
-          var stream = instance.outgoingStream(client);
+          var stream = instance.outgoingStream(client)
 
           stream.pipe(concat(function (list) {
-            t.deepEqual(list, [expected], 'must return the packet');
-            t.notEqual(list[0], expected, 'packet must be a different object');
-            instance.destroy(t.end.bind(t));
-          }));
-        }));
-      });
-    });
-  });
+            t.deepEqual(list, [expected], 'must return the packet')
+            t.notEqual(list[0], expected, 'packet must be a different object')
+            instance.destroy(t.end.bind(t))
+          }))
+        }))
+      })
+    })
+  })
 
   function enqueueAndUpdate (t, instance, client, sub, packet, messageId, callback) {
     instance.outgoingEnqueue(sub, packet, function (err) {
-      t.error(err);
-      var updated = new Packet(packet);
-      updated.messageId = messageId;
+      t.error(err)
+      var updated = new Packet(packet)
+      updated.messageId = messageId
 
       instance.outgoingUpdate(client, updated, function (err, reclient, repacket) {
-        t.error(err);
-        t.equal(reclient, client, 'client matches');
-        t.equal(repacket, repacket, 'packet matches');
-        callback(updated);
-      });
-    });
+        t.error(err)
+        t.equal(reclient, client, 'client matches')
+        t.equal(repacket, repacket, 'packet matches')
+        callback(updated)
+      })
+    })
   }
 
   testInstance('add outgoing packet and update messageId', function (t, instance) {
     var sub = {
       clientId: 'abcde', topic: 'hello', qos: 1
-    };
+    }
     var client = {
       id: sub.clientId
-    };
+    }
     var packet = {
       cmd: 'publish',
       topic: 'hello',
@@ -511,27 +511,27 @@ function abstractPersistence (opts) {
       retain: false,
       brokerId: instance.broker.id,
       brokerCounter: 42
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       enqueueAndUpdate(t, instance, client, sub, packet, 42, function (updated) {
-        var stream = instance.outgoingStream(client);
+        var stream = instance.outgoingStream(client)
 
         stream.pipe(concat(function (list) {
-          t.deepEqual(list, [updated], 'must return the packet');
-          instance.destroy(t.end.bind(t));
-        }));
-      });
-    });
-  });
+          t.deepEqual(list, [updated], 'must return the packet')
+          instance.destroy(t.end.bind(t))
+        }))
+      })
+    })
+  })
 
   testInstance('add 2 outgoing packet and clear messageId', function (t, instance) {
     var sub = {
       clientId: 'abcde', topic: 'hello', qos: 1
-    };
+    }
     var client = {
       id: sub.clientId
-    };
+    }
     var packet1 = {
       cmd: 'publish',
       topic: 'hello',
@@ -542,7 +542,7 @@ function abstractPersistence (opts) {
       retain: false,
       brokerId: instance.broker.id,
       brokerCounter: 42
-    };
+    }
     var packet2 = {
       cmd: 'publish',
       topic: 'hello',
@@ -553,35 +553,35 @@ function abstractPersistence (opts) {
       retain: false,
       brokerId: instance.broker.id,
       brokerCounter: 43
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       enqueueAndUpdate(t, instance, client, sub, packet1, 42, function (updated1) {
         enqueueAndUpdate(t, instance, client, sub, packet2, 43, function (updated2) {
           instance.outgoingClearMessageId(client, updated1, function (err, packet) {
-            t.error(err);
-            t.deepEqual(packet.messageId, 42, 'must have the same messageId');
-            t.deepEqual(packet.payload.toString(), packet1.payload.toString(), 'must have original payload');
-            t.deepEqual(packet.topic, packet1.topic, 'must have original topic');
-            var stream = instance.outgoingStream(client);
+            t.error(err)
+            t.deepEqual(packet.messageId, 42, 'must have the same messageId')
+            t.deepEqual(packet.payload.toString(), packet1.payload.toString(), 'must have original payload')
+            t.deepEqual(packet.topic, packet1.topic, 'must have original topic')
+            var stream = instance.outgoingStream(client)
 
             stream.pipe(concat(function (list) {
-              t.deepEqual(list, [updated2], 'must return the packet');
-              instance.destroy(t.end.bind(t));
-            }));
-          });
-        });
-      });
-    });
-  });
+              t.deepEqual(list, [updated2], 'must return the packet')
+              instance.destroy(t.end.bind(t))
+            }))
+          })
+        })
+      })
+    })
+  })
 
   testInstance('update to pubrel', function (t, instance) {
     var sub = {
       clientId: 'abcde', topic: 'hello', qos: 1
-    };
+    }
     var client = {
       id: sub.clientId
-    };
+    }
     var packet = {
       cmd: 'publish',
       topic: 'hello',
@@ -592,43 +592,43 @@ function abstractPersistence (opts) {
       retain: false,
       brokerId: instance.broker.id,
       brokerCounter: 42
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.outgoingEnqueue(sub, packet, function (err) {
-        t.error(err);
-        var updated = new Packet(packet);
-        updated.messageId = 42;
+        t.error(err)
+        var updated = new Packet(packet)
+        updated.messageId = 42
 
         instance.outgoingUpdate(client, updated, function (err, reclient, repacket) {
-          t.error(err);
-          t.equal(reclient, client, 'client matches');
-          t.equal(repacket, repacket, 'packet matches');
+          t.error(err)
+          t.equal(reclient, client, 'client matches')
+          t.equal(repacket, repacket, 'packet matches')
 
           var pubrel = {
             cmd: 'pubrel',
             messageId: updated.messageId
-          };
+          }
 
           instance.outgoingUpdate(client, pubrel, function (err) {
-            t.error(err);
+            t.error(err)
 
-            var stream = instance.outgoingStream(client);
+            var stream = instance.outgoingStream(client)
 
             stream.pipe(concat(function (list) {
-              t.deepEqual(list, [pubrel], 'must return the packet');
-              instance.destroy(t.end.bind(t));
-            }));
-          });
-        });
-      });
-    });
-  });
+              t.deepEqual(list, [pubrel], 'must return the packet')
+              instance.destroy(t.end.bind(t))
+            }))
+          })
+        })
+      })
+    })
+  })
 
   testInstance('add incoming packet, get it, and clear with messageId', function (t, instance) {
     var client = {
       id: 'abcde'
-    };
+    }
     var packet = {
       cmd: 'publish',
       topic: 'hello',
@@ -638,91 +638,91 @@ function abstractPersistence (opts) {
       length: 14,
       retain: false,
       messageId: 42
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.incomingStorePacket(client, packet, function (err) {
-        t.error(err);
+        t.error(err)
 
         instance.incomingGetPacket(client, {
           messageId: packet.messageId
         }, function (err, retrieved) {
-          t.error(err);
+          t.error(err)
 
           // adjusting the objects so they match
-          delete retrieved.brokerCounter;
-          delete retrieved.brokerId;
-          delete packet.dup;
-          delete packet.length;
+          delete retrieved.brokerCounter
+          delete retrieved.brokerId
+          delete packet.dup
+          delete packet.length
 
-          t.deepEqual(retrieved, packet, 'retrieved packet must be deeply equal');
-          t.notEqual(retrieved, packet, 'retrieved packet must not be the same object');
+          t.deepEqual(retrieved, packet, 'retrieved packet must be deeply equal')
+          t.notEqual(retrieved, packet, 'retrieved packet must not be the same object')
 
           instance.incomingDelPacket(client, retrieved, function (err) {
-            t.error(err);
+            t.error(err)
 
             instance.incomingGetPacket(client, {
               messageId: packet.messageId
             }, function (err, retrieved) {
-              t.ok(err, 'must error');
-              instance.destroy(t.end.bind(t));
-            });
-          });
-        });
-      });
-    });
-  });
+              t.ok(err, 'must error')
+              instance.destroy(t.end.bind(t))
+            })
+          })
+        })
+      })
+    })
+  })
 
   testInstance('store, fetch and delete will message', function (t, instance) {
     var client = {
       id: '12345'
-    };
+    }
     var expected = {
       topic: 'hello/died',
       payload: Buffer.from('muahahha'),
       qos: 0,
       retain: true
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.putWill(client, expected, function (err, c) {
-        t.error(err, 'no error');
-        t.equal(c, client, 'client matches');
+        t.error(err, 'no error')
+        t.equal(c, client, 'client matches')
         instance.getWill(client, function (err, packet, c) {
-          t.error(err, 'no error');
-          t.deepEqual(packet, expected, 'will matches');
-          t.equal(c, client, 'client matches');
+          t.error(err, 'no error')
+          t.deepEqual(packet, expected, 'will matches')
+          t.equal(c, client, 'client matches')
           instance.delWill(client, function (err, packet, c) {
-            t.error(err, 'no error');
-            t.deepEqual(packet, expected, 'will matches');
-            t.equal(c, client, 'client matches');
+            t.error(err, 'no error')
+            t.deepEqual(packet, expected, 'will matches')
+            t.equal(c, client, 'client matches')
             instance.getWill(client, function (err, packet, c) {
-              t.error(err, 'no error');
-              t.notOk(packet, 'no will after del');
-              t.equal(c, client, 'client matches');
-              instance.destroy(t.end.bind(t));
-            });
-          });
-        });
-      });
-    });
-  });
+              t.error(err, 'no error')
+              t.notOk(packet, 'no will after del')
+              t.equal(c, client, 'client matches')
+              instance.destroy(t.end.bind(t))
+            })
+          })
+        })
+      })
+    })
+  })
 
   testInstance('stream all will messages', function (t, instance) {
     var client = {
       id: '12345'
-    };
+    }
     var toWrite = {
       topic: 'hello/died',
       payload: Buffer.from('muahahha'),
       qos: 0,
       retain: true
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.putWill(client, toWrite, function (err, c) {
-        t.error(err, 'no error');
-        t.equal(c, client, 'client matches');
+        t.error(err, 'no error')
+        t.equal(c, client, 'client matches')
         instance.streamWill().pipe(through.obj(function (chunk, enc, cb) {
           t.deepEqual(chunk, {
             clientId: client.id,
@@ -731,46 +731,46 @@ function abstractPersistence (opts) {
             payload: Buffer.from('muahahha'),
             qos: 0,
             retain: true
-          }, 'packet matches');
-          cb();
+          }, 'packet matches')
+          cb()
           instance.delWill(client, function (err, result, client) {
-            t.error(err, 'no error');
-            instance.destroy(t.end.bind(t));
-          });
-        }));
-      });
-    });
-  });
+            t.error(err, 'no error')
+            instance.destroy(t.end.bind(t))
+          })
+        }))
+      })
+    })
+  })
 
   testInstance('stream all will message for unknown brokers', function (t, instance) {
-    var originalId = instance.broker.id;
+    var originalId = instance.broker.id
     var client = {
       id: '42'
-    };
+    }
     var anotherClient = {
       id: '24'
-    };
+    }
     var toWrite1 = {
       topic: 'hello/died42',
       payload: Buffer.from('muahahha'),
       qos: 0,
       retain: true
-    };
+    }
     var toWrite2 = {
       topic: 'hello/died24',
       payload: Buffer.from('muahahha'),
       qos: 0,
       retain: true
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.putWill(client, toWrite1, function (err, c) {
-        t.error(err, 'no error');
-        t.equal(c, client, 'client matches');
-        instance.broker.id = 'anotherBroker';
+        t.error(err, 'no error')
+        t.equal(c, client, 'client matches')
+        instance.broker.id = 'anotherBroker'
         instance.putWill(anotherClient, toWrite2, function (err, c) {
-          t.error(err, 'no error');
-          t.equal(c, anotherClient, 'client matches');
+          t.error(err, 'no error')
+          t.equal(c, anotherClient, 'client matches')
           instance.streamWill({
             'anotherBroker': Date.now()
           }).pipe(through.obj(function (chunk, enc, cb) {
@@ -781,35 +781,35 @@ function abstractPersistence (opts) {
               payload: Buffer.from('muahahha'),
               qos: 0,
               retain: true
-            }, 'packet matches');
-            cb();
+            }, 'packet matches')
+            cb()
             instance.delWill(client, function (err, result, client) {
-              t.error(err, 'no error');
-              instance.destroy(t.end.bind(t));
-            });
-          }));
-        });
-      });
-    });
-  });
+              t.error(err, 'no error')
+              instance.destroy(t.end.bind(t))
+            })
+          }))
+        })
+      })
+    })
+  })
 
   testInstance('do not error if unkown messageId in outgoingClearMessageId', function (t, instance) {
     var client = {
       id: 'abc-123'
-    };
+    }
     instance.removeAll(function (err) {
-      t.notOk(err, 'no error');
+      t.notOk(err, 'no error')
       instance.outgoingClearMessageId(client, 42, function (err) {
-        t.error(err);
-        instance.destroy(t.end.bind(t));
-      });
-    });
-  });
+        t.error(err)
+        instance.destroy(t.end.bind(t))
+      })
+    })
+  })
 
   test('done', function (t) {
-    t.end();
-    process.exit();
-  });
+    t.end()
+    process.exit()
+  })
 }
 
-module.exports = abstractPersistence;
+module.exports = abstractPersistence
