@@ -33,7 +33,7 @@
     "mqemitter": "^2.0.0",
     "pre-commit": "^1.1.2",
     "tape": "^4.10.1",
-    "through2": "^3.0.0"
+    "through2": "^3.0.1"
   },
   "dependencies": {
     "aedes-packet": "^1.0.0",
