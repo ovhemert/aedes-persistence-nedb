@@ -30,7 +30,7 @@
     "aedes": "^0.37.0",
     "concat-stream": "^2.0.0",
     "faucet": "0.0.1",
-    "mqemitter": "^2.0.0",
+    "mqemitter": "^3.0.0",
     "pre-commit": "^1.1.2",
     "tape": "^4.10.1",
     "through2": "^3.0.1"
