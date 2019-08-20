@@ -54,7 +54,8 @@ function Persistence (options) {
       onload: function () {
         self._ready[_name] = true
         _checkAllReady()
-      } })
+      }
+    })
     storage.persistence.setAutocompactionInterval(60 * 1000)
     return storage
   }
