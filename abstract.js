@@ -410,7 +410,8 @@ function abstractPersistence (opts) {
       qos: 1,
       retain: false,
       brokerId: instance.broker.id,
-      brokerCounter: 42
+      brokerCounter: 42,
+      dup: false
     }
     instance.removeAll(function (err) {
       t.notOk(err, 'no error')
@@ -458,7 +459,8 @@ function abstractPersistence (opts) {
       qos: 1,
       retain: false,
       brokerId: instance.broker.id,
-      brokerCounter: 42
+      brokerCounter: 42,
+      dup: false
     }
     instance.removeAll(function (err) {
       t.notOk(err, 'no error')
@@ -658,7 +660,6 @@ function abstractPersistence (opts) {
           // adjusting the objects so they match
           delete retrieved.brokerCounter
           delete retrieved.brokerId
-          delete packet.dup
           delete packet.length
 
           t.deepEqual(retrieved, packet, 'retrieved packet must be deeply equal')
