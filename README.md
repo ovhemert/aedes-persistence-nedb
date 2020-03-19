@@ -3,7 +3,6 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/36fb257bd6d241f9b95fe63d74c69a24)](https://www.codacy.com/app/ovhemert/aedes-persistence-nedb?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ovhemert/aedes-persistence-nedb&amp;utm_campaign=Badge_Grade)
 [![Dependencies](https://img.shields.io/david/ovhemert/aedes-persistence-nedb.svg)]()
 [![Known Vulnerabilities](https://snyk.io/test/npm/aedes-persistence-nedb/badge.svg)](https://snyk.io/test/npm/aedes-persistence-nedb)
-[![Greenkeeper badge](https://badges.greenkeeper.io/ovhemert/aedes-persistence-nedb.svg)](https://greenkeeper.io/)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 
 # aedes-persistence-nedb
