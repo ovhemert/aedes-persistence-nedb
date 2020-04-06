@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/ovhemert/aedes-persistence-nedb#readme",
   "devDependencies": {
-    "aedes": "^0.40.1",
+    "aedes": "^0.41.0",
     "concat-stream": "^2.0.0",
     "faucet": "0.0.1",
     "mqemitter": "^4.1.2",
