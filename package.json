@@ -7,7 +7,9 @@
     "server": "node ./server.js",
     "test": "standard && tape test.js | faucet",
     "test:test": "tape test.js",
-    "fix": "standard --fix"
+    "fix": "standard --fix",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -38,6 +40,8 @@
   "dependencies": {
     "aedes-packet": "^2.3.1",
     "nedb": "^1.8.0",
-    "standard": "^14.3.3"
-  }
+    "standard": "^14.3.3",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
